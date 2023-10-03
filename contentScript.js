@@ -13,20 +13,19 @@ function durationToSeconds(duration) {
     let seconds = 0;
 
     if (parts.length === 3) {
-        // Format: hh:mm:ss
-        seconds += parts[0] * 3600; // hours
-        seconds += parts[1] * 60; // minutes
-        seconds += parts[2]; // seconds
+        seconds += parts[0] * 3600;
+        seconds += parts[1] * 60;
+        seconds += parts[2];
     } else if (parts.length === 2) {
-        // Format: mm:ss
-        seconds += parts[0] * 60; // minutes
-        seconds += parts[1]; // seconds
+        seconds += parts[0] * 60;
+        seconds += parts[1];
     }
 
     return seconds;
 }
 
 function secondsToDuration(seconds) {
+    seconds = Math.floor(seconds);
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
@@ -34,11 +33,9 @@ function secondsToDuration(seconds) {
     let duration = "";
 
     if (hrs > 0) {
-        // Pad to 2 digits
         duration += String(hrs).padStart(2, '0') + ":";
     }
 
-    // Pad to 2 digits
     duration += String(mins).padStart(2, '0') + ":";
     duration += String(secs).padStart(2, '0');
 
@@ -46,38 +43,39 @@ function secondsToDuration(seconds) {
 }
 
 waitForElement('.ytp-time-current', () => {
-    // Select the elements
     const currentTimeElement = document.querySelector('.ytp-time-current');
-    const timeSeparatorElement = document.querySelector('.ytp-time-separator');
     const durationElement = document.querySelector('.ytp-time-duration');
+    const videoElement = document.querySelector('video');
 
-    // Get the parent of one of the elements (as they share the same parent)
     const parentElement = currentTimeElement.parentElement;
 
-    // Create new separator and remaining time span
     const newSeparator = document.createElement('span');
     newSeparator.classList.add('ytp-time-separator');
     newSeparator.textContent = ' / ';
 
     const remainingTimeElement = document.createElement('span');
     remainingTimeElement.classList.add('ytp-time-remaining');
-    remainingTimeElement.textContent = '-' + durationElement.textContent; // Initialize with full duration
+    remainingTimeElement.textContent = '-' + durationElement.textContent;
 
-    // Insert new elements into the DOM
     parentElement.appendChild(newSeparator);
     parentElement.appendChild(remainingTimeElement);
 
-    // Create a MutationObserver to watch for changes in the textContent of currentTimeElement
-    const observer = new MutationObserver(() => {
-        // Calculate remaining time
+    const onChangeFunction = function() {
         const totalDuration = durationToSeconds(durationElement.textContent);
         const currentTime = durationToSeconds(currentTimeElement.textContent);
-        const remainingTime = totalDuration - currentTime;
+        let remainingTime = totalDuration - currentTime;
 
-        // Update remaining time element
+        remainingTime /= videoElement.playbackRate; 
+
         remainingTimeElement.textContent = '-' + secondsToDuration(remainingTime);
-    });
 
-    // Start observing currentTimeElement
+        if (videoElement.playbackRate !== 1) {
+            remainingTimeElement.textContent += ` (x${videoElement.playbackRate})`
+        }
+    };
+
+    const observer = new MutationObserver(onChangeFunction);
     observer.observe(currentTimeElement, { childList: true, characterData: true, subtree: true });
+
+    videoElement.addEventListener('ratechange', onChangeFunction);
 })
