@@ -10,7 +10,7 @@ There are two ways you can install this extension:
 
 This extension is available on the Chrome Web Store.
 
-1. Navigate to the Chrome Web Store listing for this extension at [this placeholder link](https://chat.openai.com/?model=gpt-4#TBR).
+1. Navigate to the Chrome Web Store listing for this extension at [this link](https://chromewebstore.google.com/detail/youtube-remaining/hpfhjlldglkcnmmkihempjkhleahbjjg).
 2. Click on the "Add to Chrome" button.
 3. Confirm the installation by clicking "Add extension" in the pop-up window.
 
